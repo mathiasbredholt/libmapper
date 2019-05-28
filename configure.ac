@@ -298,7 +298,7 @@ AS_IF([test x$with_liblo != xno],[
   AC_SUBST(LIBLO,liblo)
 
   tmpLIBS="$LIBS"
-  LIBS="$LIBS $liblo_LIBS"
+  LIBS="$LIBS $liblo_LIBS $LIBM"
   AC_CHECK_FUNC([lo_address_set_iface],
     [AC_DEFINE([HAVE_LIBLO_SET_IFACE],[],[Define to use lo_address_set_iface function in liblo.])])
   AC_CHECK_FUNC([lo_server_new_multicast_iface],
