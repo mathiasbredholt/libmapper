@@ -79,8 +79,12 @@ AC_LIBTOOL_WIN32_DLL
 AM_PROG_LIBTOOL
 
 # Check for the math library
+# (Does not survive -Werror!)
+tmpCFLAGS="$CFLAGS"
+CFLAGS=$(echo $CFLAGS | tr ' ' '\n' | grep -v -- -Werror)
 LT_LIB_M
 LIBS="$LIBS $LIBM"
+CFLAGS="$tmpCFLAGS"
 
 # Check for C++11 features
 _CXXFLAGS="$CXXFLAGS"
