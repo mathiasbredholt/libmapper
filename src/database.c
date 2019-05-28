@@ -526,7 +526,7 @@ mapper_signal mapper_database_add_or_update_signal(mapper_database db,
                                                    mapper_message msg)
 {
     mapper_signal sig = 0;
-    int sig_rc = 0, dev_rc = 0, updated = 0;
+    int sig_rc = 0, updated = 0;
 
     mapper_device dev = mapper_database_device_by_name(db, device_name);
     if (dev) {
@@ -536,7 +536,6 @@ mapper_signal mapper_database_add_or_update_signal(mapper_database db,
     }
     else {
         dev = mapper_database_add_or_update_device(db, device_name, 0);
-        dev_rc = 1;
     }
 
     if (!sig) {
