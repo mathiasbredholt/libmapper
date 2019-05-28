@@ -36,7 +36,7 @@ matrix:
     compiler: clang
 before_install:
   - eval "${MATRIX_EVAL}"
-  - curl -L -O https://downloads.sourceforge.net/project/liblo/liblo/0.30/liblo-0.30.tar.gz && tar -xzf liblo-0.30.tar.gz && cd liblo-0.3 && ./configure --host=$HOST --prefix=$PWD/inst --disable-shared --enable-static && make install && find inst
+  - curl -L -O https://downloads.sourceforge.net/project/liblo/liblo/0.30/liblo-0.30.tar.gz && tar -xzf liblo-0.30.tar.gz && cd liblo-0.30 && ./configure --host=$HOST --prefix=$PWD/inst --disable-shared --enable-static && make install && find inst
 script:  pwd && echo MINGW_ON_LINUX=$MINGW_ON_LINUX && mkdir $PWD/inst && (./autogen.sh --host=$HOST --disable-debug --prefix=$PWD/inst CFLAGS=-I$PWD/liblo-0.30/inst/include CXXFLAGS=-I$PWD/liblo-0.30/inst/include LDFLAGS=-L$PWD/liblo-0.30/inst/lib PKG_CONFIG_PATH=$PWD/liblo-0.30/inst/lib/pkgconfig || (cat config.log; false)) && make && ([ x = x$MINGW_ON_LINUX ] && (make check || (for i in src/*.log; do echo === $i ===; cat $i; done; false)) || true) && make install && find inst
 notifications:
   email:
