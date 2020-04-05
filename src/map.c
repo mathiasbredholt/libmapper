@@ -60,6 +60,7 @@ static int cmp_qry_map_scopes(const void *ctx, mpr_dev d)
 
 void mpr_map_init(mpr_map m)
 {
+    m->self_conn_updated = 0;
     m->obj.props.mask = 0;
     m->obj.props.synced = mpr_tbl_new();
     m->obj.props.staged = mpr_tbl_new();

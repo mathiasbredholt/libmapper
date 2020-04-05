@@ -30,27 +30,12 @@ void mpr_link_init(mpr_link link)
         link->obj.id = mpr_dev_generate_unique_id(link->local_dev);
 
     if (link->local_dev == link->remote_dev) {
-        /* Add data_addr for use by self-connections. In the future we may
-         * decide to call local handlers directly, however this could result in
-         * unfortunate loops/stack overflow. Sending data for self-connections
-         * to localhost adds the messages to liblo's stack and imposes a delay
-         * since the receiving handler will not be called until
-         * mpr_dev_poll(). */
         int len;
         mpr_type type;
         const void *val;
         mpr_obj_get_prop_by_idx(&link->local_dev->obj, MPR_PROP_PORT, NULL,
-                                &len, &type, &val, 0);
-        if (1 != len || MPR_INT32 != type) {
-            trace_dev(link->local_dev, "Error retrieving port for link.");
-            return;
-        }
-        char port[10];
-        snprintf(port, 10, "%d", *(int*)val);
-        link->addr.udp = lo_address_new("localhost", port);
-        lo_address_set_iface(link->addr.udp, net->iface.name, 0);
-        link->addr.tcp = lo_address_new_with_proto(LO_TCP, "localhost", port);
-        lo_address_set_iface(link->addr.tcp, net->iface.name, 0);
+                                        &len, &type, &val, 0);
+        link->self_conn_bus = malloc(mpr_type_get_size(type) * len);
     }
 
     link->clock.new = 1;

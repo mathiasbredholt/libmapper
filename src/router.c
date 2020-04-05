@@ -284,10 +284,8 @@ void mpr_rtr_process_sig(mpr_rtr rtr, mpr_sig sig, int inst, const void *val,
             void *result = mpr_hist_get_val_ptr(dst_slot->loc->hist[idx]);
             mpr_link link = dst_slot->link;
             if (link->remote_dev == link->local_dev) {
-                mpr_sig_handler *h = dst_slot->sig->loc->handler;
-                mpr_time time = MPR_NOW;
-                if (h)
-                    h(dst_slot->sig, MPR_SIG_UPDATE, inst, sig->len, sig->type, result, time);
+                memcpy(link->self_conn_bus, result, mpr_type_get_size(sig->type) * sig->len);
+                map->self_conn_updated = 1;
                 continue;
             }
             msg = mpr_map_build_msg(map, slot, result, dst_types,

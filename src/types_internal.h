@@ -389,6 +389,8 @@ typedef struct _mpr_link {
     mpr_queue queues;               /*!< Linked-list of message queues
                                      *   waiting to be sent. */
     mpr_sync_clock_t clock;
+
+    void *self_conn_bus;
 } mpr_link_t, *mpr_link;
 
 /**** Maps and Slots ****/
@@ -455,6 +457,8 @@ typedef struct _mpr_map {
     mpr_loc process_loc;
     int status;
     int protocol;                       //!< Data transport protocol.
+
+    int self_conn_updated;
 } mpr_map_t, *mpr_map;
 
 /*! The rtr_sig is a linked list containing a signal and a list of mapping
