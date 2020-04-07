@@ -697,6 +697,16 @@ int mpr_dev_poll(mpr_dev dev, int block_ms)
     mpr_net net = &dev->obj.graph->net;
     mpr_net_poll(net);
 
+    mpr_list l = mpr_dev_get_maps(dev, MPR_DIR_IN);
+    while (l) {
+        mpr_map map = (mpr_map) *l;
+        if (map->self_conn_updated) {
+          call_handler(map->dst->sig, MPR_SIG_UPDATE, 0, map->dst->sig->len, map->dst->link->self_conn_bus, &MPR_NOW, 0);
+          map->self_conn_updated = 0;
+        }
+        l = mpr_list_get_next(l);
+    }
+
     if (!dev->loc->registered) {
         if (lo_servers_recv_noblock(net->server.admin, status, 2, 0)) {
             admin_count = (status[0] > 0) + (status[1] > 0);
@@ -743,16 +753,6 @@ int mpr_dev_poll(mpr_dev dev, int block_ms)
         // inform device subscribers of change props
         mpr_net_use_subscribers(net, dev, MPR_DEV);
         mpr_dev_send_state(dev, MSG_DEV);
-    }
-  
-    mpr_list l = mpr_dev_get_maps(dev, MPR_DIR_IN);
-    while (l) {
-        mpr_map map = (mpr_map) *l;
-        if (map->self_conn_updated) {
-          call_handler(map->dst->sig, MPR_SIG_UPDATE, 0, map->dst->sig->len, map->dst->link->self_conn_bus, &MPR_NOW, 0);
-          map->self_conn_updated = 0;
-        }
-        l = mpr_list_get_next(l);
     }
 
     net->msgs_recvd |= admin_count;
