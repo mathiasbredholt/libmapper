@@ -506,7 +506,7 @@ mpr_link mpr_graph_add_link(mpr_graph g, mpr_dev dev1, mpr_dev dev2)
 {
     RETURN_UNLESS(dev1 && dev2, 0);
     mpr_link link = mpr_dev_get_link_by_remote(dev1, dev2);
-    if (link)
+    if (link && link->local_dev != link->remote_dev)
         return link;
 
     link = (mpr_link)mpr_list_add_item((void**)&g->links, sizeof(mpr_link_t));
