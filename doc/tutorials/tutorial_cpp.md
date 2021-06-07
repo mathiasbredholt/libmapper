@@ -2,8 +2,8 @@
 
 ## Overview of the C++ API
 
-If you take a look at the API documentation, there is a section called
-"modules".  This is divided into the following sections:
+If you take a look at the [API documentation](../html/index.html), there is
+a section called "modules".  This is divided into the following sections:
 
 * [Graphs](../html/classmapper_1_1Graph.html)
 * [Devices](../html/classmapper_1_1Device.html)
@@ -18,8 +18,8 @@ user interfaces for designing mapping configurations.
 
 ### Creating a device
 
-To create a _libmapper_ device, it is necessary to provide a few parameters the
-constructor, which is overloaded to accept either arguments of either
+To create a _libmapper_ device, it is necessary to provide a `name` to the
+constructor, which is overloaded to accept arguments of either
 `const char*` or C++ `std::string`:
 
 ~~~c++
@@ -116,7 +116,7 @@ We'll start with creating a "sender", so we will first talk about how to update
 output signals.  A signal requires a bit more information than a device, much of
 which is optional:
 
-1. the direction of the signal: either `Direction::IN` or `Direction::OUT`
+1. the direction of the signal: either `Direction::INCOMING` or `Direction::OUTGOING`
 * a name for the signal (must be unique within a devices inputs or outputs)
 * the signal's vector length
 * the signal's data type, one of `Type::INT32`, `Type::FLOAT`, or `Type::DOUBLE`
@@ -130,13 +130,13 @@ examples:
 ~~~c++
 using namespace mapper;
 Signal input;
-input = dev.add_sig(Direction::IN, "my_input", 1, Type::FLOAT,
+input = dev.add_sig(Direction::INCOMING, "my_input", 1, Type::FLOAT,
                     "m/s").set_callback(h, Signal::Event::UPDATE);
 
 int min[4] = {1,2,3,4};
 int max[4] = {10,11,12,13};
 Signal output;
-output = dev.add_sig(Direction::OUT, "my_output", 4, Type::INT32, 0, min, max);
+output = dev.add_sig(Direction::OUTGOING, "my_output", 4, Type::INT32, 0, min, max);
 ~~~
 
 The only _required_ parameters here are the signal "direction" (IN or OUT),
@@ -169,7 +169,7 @@ minimum, or maximum information:
 
 ~~~c++
 mapper::Signal sig;
-sig = dev.add_signal(mapper::Direction::OUT, "outA", 1, mapper::Type::INT32);
+sig = dev.add_signal(mapper::Direction::OUTGOING, "outA", 1, mapper::Type::INT32);
 ~~~
 
 An example of a `float` signal where some more information is provided:
@@ -178,7 +178,7 @@ An example of a `float` signal where some more information is provided:
 float min = 0.0f;
 float max = 5.0f;
 mapper::Signal sig;
-sig = dev.add_signal(mapper::Direction::OUT, "sensor1", 1,
+sig = dev.add_signal(mapper::Direction::OUTGOING, "sensor1", 1,
                      mapper::Type::FLOAT, "V", &min, &max);
 ~~~
 
@@ -190,7 +190,7 @@ mapper::Device dev("test_sender");
 mapper::Signal sig;
 float min = 0.0f;
 float max = 5.0f;
-sig = dev.add_signal(mapper::Direction::OUT, "sensor1", 1,
+sig = dev.add_signal(mapper::Direction::OUTGOING, "sensor1", 1,
                      mapper::Type::FLOAT, "V", &min, &max);
     
 while (!done) {
@@ -208,7 +208,7 @@ belonging to a particular device:
 ~~~c++
 std::cout << "Signals belonging to " << dev[Property::NAME] << std::endl;
 
-mapper::List<mapper::Signal> list = dev.signals(mapper::Direction::IN).begin();
+mapper::List<mapper::Signal> list = dev.signals(mapper::Direction::INCOMING).begin();
 for (; list != list.end(); ++list) {
     std::cout << "signal: " << *list << std::endl;
 }
@@ -244,7 +244,7 @@ while (!done) {
     
     // call a hypothetical user function that reads a sensor
     float v1 = do_stuff();
-    sensor1.set_value(v1);
+    sig.set_value(v1);
 }
 ~~~
 
@@ -344,7 +344,7 @@ void main()
     mapper::Device dev("synth");
     
     mapper::Signal pulsewidth =
-        dev.add_signal(mapper::Direction::IN, "pulsewidth", 1,
+        dev.add_signal(mapper::Direction::INCOMING, "pulsewidth", 1,
                        mapper::Type::FLOAT, 0, &min_pw, &max_pw)
            .set_property("synthptr", &synth)
            .set_callback(pulsewidth_handler);
@@ -404,7 +404,7 @@ Signal::Instance si = sig.instance(id);
 si.set_value(value);
 
 // or simply:
-sig.instance(id).set_value(value)
+sig.instance(id).set_value(value);
 ~~~
 
 The `instance` argument is of type `mapper::Id` does not have to be considered as
@@ -469,7 +469,7 @@ void my_handler(mapper::Signal signal, mapper::Signal::Event event,
         // user code chooses which instance to release
         mapper::Id release_me = choose_instance_to_release(sig);
 
-        sig.instance(release_me).release(tt);
+        sig.instance(release_me).release();
         return;
     }
 }
@@ -540,19 +540,22 @@ cast to the appropriate type.
 
 You can use any property name not already reserved by _libmapper_.
 
-#### Reserved keys for devices
+#### Reserved keys for all objects
 
-`data`, `id`, `is_local`, `lib_version`, `linked`, `name`, `num_maps_in`,
-`num_maps_out`, `num_sigs_in`, `num_sigs_out`, `ordinal`, `status`, `synced`,
-`version`
+`data`, `id`, `is_local`, `lib_version`, `version`
 
-#### Reserved keys for signals
+#### Additional reserved keys for devices
 
-`data`, `device`, `direction`, `id`, `is_local`, `jitter`, `length`, `max`,
-`maximum`, `min`, `minimum`, `name`, `num_inst`, `num_maps_in`, `num_maps_out`,
-`period`, `steal`, `type`, `unit`, `use_inst`, `version`
+`linked`, `name`, `num_maps_in`, `num_maps_out`, `num_sigs_in`, `num_sigs_out`,
+`ordinal`, `status`, `synced`
 
-#### Reserved keys for maps
+#### Additional reserved keys for signals
 
-`data`, `expr`, `id`, `is_local`, `muted`, `num_sigs_in`, `process_loc`,
-`protocol`, `scope`, `status`, `use_inst`, `version`
+`device`, `direction`, `jitter`, `length`, `max`, `maximum`, `min`, `minimum`,
+`name`, `num_inst`, `num_maps_in`, `num_maps_out`, `period`, `steal`, `type`,
+`unit`, `use_inst`
+
+#### Additional reserved keys for maps
+
+`expr`, `muted`, `num_sigs_in`, `process_loc`, `protocol`, `scope`, `status`,
+`use_inst`
